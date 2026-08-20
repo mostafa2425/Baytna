@@ -1,0 +1,5 @@
+'use client';
+import { Form, Input, Button, Card, Typography, message } from 'antd';
+import { createClient } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+export default function LoginPage(){const router=useRouter(); const submit=async(v:{email:string;password:string})=>{const supabase=createClient(); const {error}=await supabase.auth.signInWithPassword(v); if(error) message.error(error.message); else {message.success('تم تسجيل الدخول'); router.push('/');}}; return <main style={{minHeight:'100vh',display:'grid',placeItems:'center',padding:20}}><Card style={{width:'100%',maxWidth:430}}><Typography.Title level={2}>🏠 بيتنا</Typography.Title><Typography.Paragraph>سجّل دخولك علشان تحفظ قوائمك ومشترياتك.</Typography.Paragraph><Form layout="vertical" onFinish={submit}><Form.Item label="البريد الإلكتروني" name="email" rules={[{required:true,type:'email'}]}><Input /></Form.Item><Form.Item label="كلمة المرور" name="password" rules={[{required:true,min:6}]}><Input.Password /></Form.Item><Button type="primary" htmlType="submit" block>تسجيل الدخول</Button></Form></Card></main>}
