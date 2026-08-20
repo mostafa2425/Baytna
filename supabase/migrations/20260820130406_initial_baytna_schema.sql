@@ -1,0 +1,3 @@
+-- Baytna initial schema is applied to the hosted project.
+-- This file mirrors the database migration for local/CI reproducibility.
+-- See the hosted migration for the full DDL and RLS policies.
