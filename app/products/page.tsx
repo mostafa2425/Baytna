@@ -1,6 +1,76 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { Card, Input, List, Tag, Empty, Spin } from 'antd';
+import { Card, Input, Tag, Empty, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { createClient } from '@/lib/supabase';
-export default function ProductsPage(){const [q,setQ]=useState('');const [items,setItems]=useState<any[]>([]);const [loading,setLoading]=useState(true);useEffect(()=>{(async()=>{const s=createClient();const {data}=await s.from('product_variants').select('id,amount,unit,variant_name_ar,variant_name_en,base_products(name_ar,name_en,categories(name_ar,name_en))').limit(500);setItems(data??[]);setLoading(false)})()},[]);const filtered=useMemo(()=>items.filter(x=>`${x.variant_name_ar} ${x.variant_name_en}`.toLowerCase().includes(q.toLowerCase())),[items,q]);return <main className="baytna-page"><div className="baytna-container"><section className="hero"><h1>المنتجات</h1><p>ابحث في كتالوج بيتنا واختر الحجم المناسب.</p></section><Card><Input size="large" prefix={<SearchOutlined/>} placeholder="ابحث عن لبن، طماطم، أرز..." value={q} onChange={e=>setQ(e.target.value)}/>{loading?<Spin style={{display:'block',margin:30}}/>:!filtered.length?<Empty description="مفيش منتجات مطابقة"/>:<List dataSource={filtered} renderItem={x=><List.Item><List.Item.Meta title={x.variant_name_ar || x.base_products?.name_ar} description={x.variant_name_en || x.base_products?.name_en}/><Tag>{x.amount} {x.unit}</Tag></List.Item>}/>}</Card></div></main>}
+
+export default function ProductsPage() {
+  const [q, setQ] = useState('');
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const s = createClient();
+      const { data } = await s
+        .from('product_variants')
+        .select('id,amount,unit,variant_name_ar,variant_name_en,base_products(name_ar,name_en,categories(name_ar,name_en))')
+        .limit(500);
+      setItems(data ?? []);
+      setLoading(false);
+    })();
+  }, []);
+
+  const filtered = useMemo(
+    () =>
+      items.filter((x) =>
+        `${x.variant_name_ar ?? ''} ${x.variant_name_en ?? ''}`
+          .toLowerCase()
+          .includes(q.toLowerCase()),
+      ),
+    [items, q],
+  );
+
+  return (
+    <main className="baytna-page">
+      <div className="baytna-container">
+        <section className="hero">
+          <h1>المنتجات</h1>
+          <p>ابحث في كتالوج بيتنا واختر الحجم المناسب.</p>
+        </section>
+        <Card>
+          <Input
+            size="large"
+            prefix={<SearchOutlined />}
+            placeholder="ابحث عن لبن، طماطم، أرز..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          {loading ? (
+            <Spin style={{ display: 'block', margin: 30 }} />
+          ) : !filtered.length ? (
+            <Empty description="مفيش منتجات مطابقة" />
+          ) : (
+            <div role="list" aria-label="المنتجات" style={{ marginTop: 8 }}>
+              {filtered.map((x) => (
+                <div className="list-row" role="listitem" key={x.id}>
+                  <div>
+                    <div className="product-name">
+                      {x.variant_name_ar || x.base_products?.name_ar}
+                    </div>
+                    <div className="product-meta">
+                      {x.variant_name_en || x.base_products?.name_en}
+                    </div>
+                  </div>
+                  <Tag>
+                    {x.amount} {x.unit}
+                  </Tag>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+    </main>
+  );
+}
